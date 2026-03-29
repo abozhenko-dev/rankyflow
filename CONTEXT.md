@@ -179,10 +179,14 @@ seo-tracker/
 - [x] **DEPLOY.md** — step-by-step Railway + Vercel deploy guide
 
 ### 🔲 Следующие шаги
+- [ ] Railway: дождаться успешного деплоя API (Dockerfile fix запушен)
+- [ ] Railway: настроить второй сервис (invigorating-contentment) как Celery Worker
+- [ ] Railway: Generate Domain для API (Networking → Generate Domain)
+- [ ] Vercel: импортировать frontend/ из repo, указать NEXT_PUBLIC_API_URL
+- [ ] GoDaddy DNS: направить rankyflow.com → Vercel
 - [ ] Google Search Console + GA4 сервис
 - [ ] Stripe интеграция
 - [ ] Тесты
-- [ ] Деплой на Railway + Vercel
 
 ---
 

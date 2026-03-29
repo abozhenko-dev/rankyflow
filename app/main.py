@@ -1,0 +1,53 @@
+"""
+SEO Competitor Tracker — FastAPI Application
+"""
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import structlog
+
+from app.core.config import settings
+from app.api.v1 import api_router
+
+logger = structlog.get_logger()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup & shutdown events."""
+    logger.info("Starting SEO Competitor Tracker", env=settings.app_env)
+
+    # Init Sentry in production
+    if settings.sentry_dsn and settings.is_production:
+        import sentry_sdk
+        sentry_sdk.init(dsn=settings.sentry_dsn, traces_sample_rate=0.2)
+
+    yield
+
+    logger.info("Shutting down")
+
+
+app = FastAPI(
+    title=settings.app_name,
+    version="0.1.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan,
+)
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount API
+app.include_router(api_router, prefix=settings.api_v1_prefix)
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok", "version": "0.1.0"}

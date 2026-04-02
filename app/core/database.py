@@ -18,9 +18,10 @@ from app.core.config import settings
 engine = create_async_engine(
     settings.database_url,
     echo=settings.debug,
-    pool_size=20,
-    max_overflow=10,
+    pool_size=5,
+    max_overflow=5,
     pool_pre_ping=True,
+    pool_recycle=300,
 )
 
 async_session_factory = async_sessionmaker(
@@ -48,22 +49,32 @@ async def get_db() -> AsyncSession:
 
 
 # ── Sync (Celery workers) ─────────────────────────────
+# Lazy init — only create sync engine when first needed
 
-sync_engine = create_engine(
-    settings.database_url_sync,
-    echo=False,
-    pool_size=10,
-    max_overflow=5,
-    pool_pre_ping=True,
-)
+_sync_engine = None
+_SyncSessionFactory = None
 
-SyncSessionFactory = sessionmaker(bind=sync_engine, expire_on_commit=False)
+
+def _get_sync_engine():
+    global _sync_engine, _SyncSessionFactory
+    if _sync_engine is None:
+        _sync_engine = create_engine(
+            settings.database_url_sync,
+            echo=False,
+            pool_size=5,
+            max_overflow=3,
+            pool_pre_ping=True,
+            pool_recycle=300,
+        )
+        _SyncSessionFactory = sessionmaker(bind=_sync_engine, expire_on_commit=False)
+    return _sync_engine, _SyncSessionFactory
 
 
 @contextmanager
 def get_sync_db():
     """Context manager: yields a sync DB session for Celery tasks."""
-    session = SyncSessionFactory()
+    _, factory = _get_sync_engine()
+    session = factory()
     try:
         yield session
         session.commit()

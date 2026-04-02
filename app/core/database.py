@@ -15,13 +15,20 @@ from app.core.config import settings
 
 # ── Async (FastAPI) ───────────────────────────────────
 
+_db_url = settings.database_url
+# Ensure pgbouncer compatibility for asyncpg
+if "6543" in _db_url and "prepared_statement_cache_size" not in _db_url:
+    sep = "&" if "?" in _db_url else "?"
+    _db_url += f"{sep}prepared_statement_cache_size=0"
+
 engine = create_async_engine(
-    settings.database_url,
+    _db_url,
     echo=settings.debug,
     pool_size=5,
     max_overflow=5,
     pool_pre_ping=True,
     pool_recycle=300,
+    connect_args={"ssl": "require"} if "supabase" in _db_url else {},
 )
 
 async_session_factory = async_sessionmaker(

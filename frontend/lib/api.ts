@@ -246,6 +246,7 @@ export const ranks = {
       `/ranks/projects/${projectId}/chart?${qs}`
     );
   },
+};
 
 // ── Data (Ranks, Changes, Stats) ─────────────────────
 

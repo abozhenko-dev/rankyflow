@@ -2,7 +2,7 @@
  * API client — typed HTTP wrapper for the FastAPI backend.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://rankyflow-production.up.railway.app";
 const API_PREFIX = "/api/v1";
 
 // ── Token management ─────────────────────────────────

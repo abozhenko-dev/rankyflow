@@ -38,7 +38,8 @@ class User(Base):
 
     # Billing
     plan: Mapped[str] = mapped_column(
-        String(20), default="free"
+        SAEnum("free", "starter", "pro", "agency", name="plan_tier", create_type=False),
+        default="free",
     )
     stripe_customer_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     stripe_subscription_id: Mapped[str | None] = mapped_column(String(255), nullable=True)

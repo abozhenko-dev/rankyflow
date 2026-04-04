@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const [newName, setNewName] = useState("");
   const [newDomain, setNewDomain] = useState("");
   const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
 
   useEffect(() => {
     loadProjects();
@@ -41,14 +42,21 @@ export default function DashboardPage() {
   async function handleCreate() {
     if (!newName || !newDomain) return;
     setCreating(true);
+    setCreateError("");
     try {
       await projectsApi.create({ name: newName, domain: newDomain });
       setNewName("");
       setNewDomain("");
       setShowCreate(false);
       loadProjects();
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      const msg = e?.message || "Failed to create project";
+      try {
+        const parsed = JSON.parse(msg.replace(/^API \d+: /, ""));
+        setCreateError(parsed.detail || msg);
+      } catch {
+        setCreateError(msg);
+      }
     } finally {
       setCreating(false);
     }
@@ -121,6 +129,9 @@ export default function DashboardPage() {
                 className="w-full px-4 py-2.5 bg-surface-200 border border-zinc-700 rounded-lg text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
+            {createError && (
+              <p className="text-red-400 text-sm mt-3">{createError}</p>
+            )}
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowCreate(false)}

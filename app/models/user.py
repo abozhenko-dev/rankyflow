@@ -60,9 +60,9 @@ class User(Base):
     @property
     def plan_limits(self) -> dict:
         limits = {
-            PlanTier.FREE: {"projects": 1, "competitors": 2, "keywords": 20},
-            PlanTier.STARTER: {"projects": 1, "competitors": 3, "keywords": 50},
-            PlanTier.PRO: {"projects": 5, "competitors": 10, "keywords": 300},
-            PlanTier.AGENCY: {"projects": 20, "competitors": 50, "keywords": 2000},
+            PlanTier.FREE: {"projects": 3, "competitors": 3, "keywords": 50},
+            PlanTier.STARTER: {"projects": 5, "competitors": 5, "keywords": 100},
+            PlanTier.PRO: {"projects": 15, "competitors": 15, "keywords": 500},
+            PlanTier.AGENCY: {"projects": 50, "competitors": 50, "keywords": 5000},
         }
         return limits.get(self.plan, limits[PlanTier.FREE])

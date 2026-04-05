@@ -91,7 +91,7 @@ class ChangeLog(Base):
     )
 
     severity: Mapped[str] = mapped_column(
-        SAEnum(ChangeSeverity, name="change_severity"), default=ChangeSeverity.MINOR
+        SAEnum("minor", "moderate", "major", name="change_severity", create_type=False), default="minor"
     )
     change_type: Mapped[str] = mapped_column(String(50), nullable=False)  # title, meta, content, structure, schema
     field_name: Mapped[str] = mapped_column(String(100), nullable=False)

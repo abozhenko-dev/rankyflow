@@ -27,8 +27,8 @@ logger = structlog.get_logger()
 
 # Platform access by plan tier
 PLAN_PLATFORMS = {
-    PlanTier.PRO: [LLMPlatform.CHATGPT, LLMPlatform.PERPLEXITY, LLMPlatform.GEMINI],
-    PlanTier.AGENCY: list(LLMPlatform),  # all 5
+    "pro": ["chatgpt", "perplexity", "gemini"],
+    "agency": list(LLMPlatform),  # all 5
 }
 
 
@@ -42,7 +42,7 @@ def run(project_id: str | None = None):
             select(Project)
             .where(Project.is_active == True)
             .join(User, Project.owner_id == User.id)
-            .where(User.plan.in_([PlanTier.PRO, PlanTier.AGENCY]))
+            .where(User.plan.in_(["pro", "agency"]))
             .options(joinedload(Project.competitors))
         )
         if project_id:
@@ -77,8 +77,8 @@ def run(project_id: str | None = None):
         duration = time.time() - started
         run_log = AgentRun(
             project_id=project_id or "all",
-            agent_type=AgentType.GEO_VISIBILITY,
-            status=RunStatus.COMPLETED,
+            agent_type="geo_visibility",
+            status="completed",
             items_processed=total_prompts,
             items_failed=total_failed,
             duration_seconds=round(duration, 2),
@@ -217,11 +217,11 @@ def _process_project(
 def _estimate_cost(platform: LLMPlatform, tokens: int) -> float:
     """Rough cost estimate per platform per request."""
     cost_per_1k_tokens = {
-        LLMPlatform.CHATGPT: 0.00015 + 0.0006,   # gpt-4o-mini input+output
-        LLMPlatform.PERPLEXITY: 0.001 + 0.001,    # sonar
-        LLMPlatform.CLAUDE: 0.003 + 0.015,         # sonnet
-        LLMPlatform.GEMINI: 0.0001 + 0.0004,      # flash
-        LLMPlatform.DEEPSEEK: 0.00014 + 0.00028,  # chat
+        "chatgpt": 0.00015 + 0.0006,   # gpt-4o-mini input+output
+        "perplexity": 0.001 + 0.001,    # sonar
+        "claude": 0.003 + 0.015,         # sonnet
+        "gemini": 0.0001 + 0.0004,      # flash
+        "deepseek": 0.00014 + 0.00028,  # chat
     }
     rate = cost_per_1k_tokens.get(platform, 0.001)
     return (tokens / 1000) * rate

@@ -37,10 +37,12 @@ class AgentRun(Base):
         String(36), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
     )
     agent_type: Mapped[str] = mapped_column(
-        SAEnum(AgentType, name="agent_type"), nullable=False
+        SAEnum("rank_tracker", "change_detection", "google_data", "geo_visibility", "analysis", "alert_report",
+               name="agent_type", create_type=False), nullable=False
     )
     status: Mapped[str] = mapped_column(
-        SAEnum(RunStatus, name="run_status"), default=RunStatus.PENDING
+        SAEnum("pending", "running", "completed", "failed",
+               name="run_status", create_type=False), default="pending"
     )
 
     # Stats

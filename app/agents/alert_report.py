@@ -54,8 +54,8 @@ def run(project_id: str | None = None):
         duration = time.time() - started
         run_log = AgentRun(
             project_id=project_id or "all",
-            agent_type=AgentType.ALERT_REPORT,
-            status=RunStatus.COMPLETED,
+            agent_type="alert_report",
+            status="completed",
             items_processed=emails_sent,
             duration_seconds=round(duration, 2),
             completed_at=datetime.now(timezone.utc),
@@ -76,7 +76,7 @@ def _process_project(db, project: Project, owner: User) -> int:
         select(AgentRun)
         .where(and_(
             AgentRun.project_id == project.id,
-            AgentRun.agent_type == AgentType.ANALYSIS,
+            AgentRun.agent_type == "analysis",
             AgentRun.started_at >= datetime.combine(today, datetime.min.time()),
         ))
         .order_by(AgentRun.started_at.desc())

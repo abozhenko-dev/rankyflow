@@ -42,7 +42,7 @@ class GEOVisibilityService:
         text = data["choices"][0]["message"]["content"]
         usage = data.get("usage", {})
         return {
-            "platform": LLMPlatform.CHATGPT,
+            "platform": "chatgpt",
             "response_text": text,
             "model_used": "gpt-4o-mini",
             "tokens_used": usage.get("total_tokens", 0),
@@ -77,7 +77,7 @@ class GEOVisibilityService:
         cited_domains = list({self._extract_domain(url) for url in cited_urls})
 
         return {
-            "platform": LLMPlatform.PERPLEXITY,
+            "platform": "perplexity",
             "response_text": text,
             "model_used": "sonar",
             "tokens_used": usage.get("total_tokens", 0),
@@ -109,7 +109,7 @@ class GEOVisibilityService:
         tokens = (usage.get("input_tokens", 0) + usage.get("output_tokens", 0))
 
         return {
-            "platform": LLMPlatform.CLAUDE,
+            "platform": "claude",
             "response_text": text,
             "model_used": "claude-sonnet-4-20250514",
             "tokens_used": tokens,
@@ -135,7 +135,7 @@ class GEOVisibilityService:
         tokens = usage.get("totalTokenCount", 0)
 
         return {
-            "platform": LLMPlatform.GEMINI,
+            "platform": "gemini",
             "response_text": text,
             "model_used": "gemini-2.0-flash",
             "tokens_used": tokens,
@@ -163,7 +163,7 @@ class GEOVisibilityService:
         usage = data.get("usage", {})
 
         return {
-            "platform": LLMPlatform.DEEPSEEK,
+            "platform": "deepseek",
             "response_text": text,
             "model_used": "deepseek-chat",
             "tokens_used": usage.get("total_tokens", 0),
@@ -174,11 +174,11 @@ class GEOVisibilityService:
     # ── Query All Platforms ───────────────────────────
 
     PLATFORM_METHODS = {
-        LLMPlatform.CHATGPT: "query_chatgpt",
-        LLMPlatform.PERPLEXITY: "query_perplexity",
-        LLMPlatform.CLAUDE: "query_claude",
-        LLMPlatform.GEMINI: "query_gemini",
-        LLMPlatform.DEEPSEEK: "query_deepseek",
+        "chatgpt": "query_chatgpt",
+        "perplexity": "query_perplexity",
+        "claude": "query_claude",
+        "gemini": "query_gemini",
+        "deepseek": "query_deepseek",
     }
 
     async def query_all_platforms(

@@ -50,7 +50,7 @@ class LLMPrompt(Base):
     )
     prompt_text: Mapped[str] = mapped_column(Text, nullable=False)
     intent: Mapped[str] = mapped_column(
-        SAEnum(PromptIntent, name="prompt_intent"), default=PromptIntent.COMMERCIAL
+        SAEnum("informational", "commercial", "transactional", "navigational", name="prompt_intent", create_type=False), default="commercial"
     )
     tags: Mapped[str | None] = mapped_column(String(500), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -81,7 +81,7 @@ class LLMResponse(Base):
         String(36), ForeignKey("llm_prompts.id", ondelete="CASCADE"), nullable=False, index=True
     )
     platform: Mapped[str] = mapped_column(
-        SAEnum(LLMPlatform, name="llm_platform"), nullable=False
+        SAEnum("chatgpt", "claude", "perplexity", "gemini", "deepseek", name="llm_platform", create_type=False), nullable=False
     )
 
     # Full response
@@ -132,7 +132,7 @@ class LLMMention(Base):
 
     # Sentiment
     sentiment: Mapped[str | None] = mapped_column(
-        SAEnum(Sentiment, name="mention_sentiment"), nullable=True
+        SAEnum("positive", "neutral", "negative", name="mention_sentiment", create_type=False), nullable=True
     )
     sentiment_snippet: Mapped[str | None] = mapped_column(Text, nullable=True)  # the sentence mentioning brand
 
@@ -164,7 +164,7 @@ class GEOVisibilitySnapshot(Base):
         String(36), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
     )
     platform: Mapped[str] = mapped_column(
-        SAEnum(LLMPlatform, name="llm_platform_snap"), nullable=False
+        SAEnum("chatgpt", "claude", "perplexity", "gemini", "deepseek", name="llm_platform", create_type=False), nullable=False
     )
 
     # Aggregated metrics

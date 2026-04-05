@@ -25,13 +25,13 @@ router = APIRouter(prefix="/geo", tags=["geo / ai visibility"])
 
 class PromptCreate(BaseModel):
     prompt_text: str = Field(max_length=2000)
-    intent: PromptIntent = PromptIntent.COMMERCIAL
+    intent: str = "commercial"
     tags: Optional[str] = None
 
 
 class PromptBulkCreate(BaseModel):
     prompts: List[str] = Field(min_length=1, max_length=100)
-    intent: PromptIntent = PromptIntent.COMMERCIAL
+    intent: str = "commercial"
 
 
 class PromptResponse(BaseModel):
@@ -76,7 +76,7 @@ class MentionDetailResponse(BaseModel):
 
 def _require_geo_access(user: User):
     """GEO features require Pro or Agency plan."""
-    if user.plan in (PlanTier.FREE, PlanTier.STARTER):
+    if user.plan in ("free", "starter"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="GEO/AI Visibility requires Pro or Agency plan. Upgrade to access.",
@@ -215,8 +215,8 @@ async def get_visibility_snapshots(
 # ── Prompt Limits ─────────────────────────────────────
 
 GEO_PROMPT_LIMITS = {
-    PlanTier.PRO: 50,
-    PlanTier.AGENCY: 200,
+    "pro": 50,
+    "agency": 200,
 }
 
 async def _check_prompt_limit(db: AsyncSession, project_id: str, user: User, adding: int):

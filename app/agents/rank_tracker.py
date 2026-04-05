@@ -63,8 +63,8 @@ def run(project_id: str | None = None):
         duration = time.time() - started
         run_log = AgentRun(
             project_id=project_id or "all",
-            agent_type=AgentType.RANK_TRACKER,
-            status=RunStatus.COMPLETED if total_failed == 0 else RunStatus.COMPLETED,
+            agent_type="rank_tracker",
+            status="completed" if total_failed == 0 else "failed",
             items_processed=total_processed,
             items_failed=total_failed,
             duration_seconds=round(duration, 2),

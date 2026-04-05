@@ -43,8 +43,8 @@ def run(project_id: str | None = None):
         duration = time.time() - started
         run_log = AgentRun(
             project_id=project_id or "all",
-            agent_type=AgentType.ANALYSIS,
-            status=RunStatus.COMPLETED,
+            agent_type="analysis",
+            status="completed",
             items_processed=total_processed,
             duration_seconds=round(duration, 2),
             completed_at=datetime.now(timezone.utc),
@@ -139,8 +139,8 @@ def _analyze_project(db, project: Project):
     # 7. Save analysis as agent run result
     run_log = AgentRun(
         project_id=project.id,
-        agent_type=AgentType.ANALYSIS,
-        status=RunStatus.COMPLETED,
+        agent_type="analysis",
+        status="completed",
         items_processed=len(rank_summary) + len(changes_summary),
         result_summary=json.dumps(analysis, ensure_ascii=False),
         completed_at=datetime.now(timezone.utc),

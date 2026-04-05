@@ -51,3 +51,12 @@ app.include_router(api_router, prefix=settings.api_v1_prefix)
 @app.get("/health")
 async def health():
     return {"status": "ok", "version": "0.1.0"}
+
+
+@app.get("/debug/ip")
+async def debug_ip():
+    """Temporary endpoint to check outbound IP."""
+    import httpx
+    async with httpx.AsyncClient(timeout=10) as client:
+        r = await client.get("https://api.ipify.org?format=json")
+        return r.json()

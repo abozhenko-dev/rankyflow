@@ -9,6 +9,7 @@ celery_app = Celery(
     "seo_tracker",
     broker=settings.redis_url,
     backend=settings.redis_url,
+    include=["app.tasks.agents"],
 )
 
 celery_app.conf.update(
@@ -65,5 +66,4 @@ celery_app.conf.beat_schedule = {
     },
 }
 
-# Auto-discover tasks
-celery_app.autodiscover_tasks(["app.tasks"])
+# Tasks are included via 'include' parameter above

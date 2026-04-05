@@ -132,3 +132,11 @@ async def list_agent_runs(
 
     runs = await db.execute(query)
     return [AgentRunResponse.model_validate(r) for r in runs.scalars().all()]
+
+
+@router.get("/debug/worker-ip")
+async def debug_worker_ip(user: User = Depends(get_current_user)):
+    """Trigger worker IP check and return task ID."""
+    from app.tasks.agents import check_worker_ip
+    task = check_worker_ip.delay()
+    return {"task_id": str(task.id), "message": "Check worker logs for IP"}

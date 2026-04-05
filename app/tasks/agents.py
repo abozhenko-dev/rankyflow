@@ -124,3 +124,19 @@ def run_all_for_project(project_id: str):
     run_geo_visibility.delay(project_id)
     run_analysis.apply_async(args=[project_id], countdown=120)
     run_alert_report.apply_async(args=[project_id], countdown=180)
+
+
+@celery_app.task(name="app.tasks.agents.check_worker_ip")
+def check_worker_ip():
+    """Check outbound IP of the Celery worker."""
+    import httpx
+    import asyncio
+
+    async def _get_ip():
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get("https://api.ipify.org?format=json")
+            return r.json()
+
+    result = asyncio.run(_get_ip())
+    logger.info("Worker outbound IP", ip=result)
+    return result

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { keywords as kwApi, agents } from "@/lib/api";
+import { keywords as kwApi, agents, data as dataApi } from "@/lib/api";
 import type { Keyword } from "@/types";
 import { formatPosition, formatChange, cn } from "@/lib/utils";
 import {
@@ -30,10 +30,53 @@ export default function KeywordsPage() {
   const [adding, setAdding] = useState(false);
   const [sortField, setSortField] = useState<"keyword" | "position" | "change">("keyword");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [selectedKwId, setSelectedKwId] = useState<string | null>(null);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartDomains, setChartDomains] = useState<string[]>([]);
+  const [chartOwnDomain, setChartOwnDomain] = useState<string>("");
 
   useEffect(() => {
     loadKeywords();
   }, [projectId]);
+
+  // Load chart data when a keyword is selected or when keywords load
+  useEffect(() => {
+    if (kws.length > 0) {
+      const kwId = selectedKwId || kws[0]?.id;
+      if (kwId) loadChartData(kwId);
+    }
+  }, [selectedKwId, kws]);
+
+  async function loadChartData(kwId: string) {
+    try {
+      const res = await dataApi.rankHistory(projectId, kwId, 14);
+      // res = {keyword, keyword_id, domains: [...], data: [{date, positions: {domain: pos}}]}
+      if (res && res.data && res.domains) {
+        setChartDomains(res.domains);
+        // Find own domain (first one that's not a competitor)
+        // The project domain is in the response — pick it from the data
+        setChartOwnDomain(res.domains[0] || "");
+        
+        const formatted = res.data.map((entry: any) => {
+          const d = new Date(entry.date);
+          const point: Record<string, any> = {
+            date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+          };
+          for (const domain of res.domains) {
+            point[domain] = entry.positions?.[domain] ?? null;
+          }
+          return point;
+        });
+        setChartData(formatted);
+      } else {
+        setChartData([]);
+        setChartDomains([]);
+      }
+    } catch (e) {
+      console.error("Failed to load chart data:", e);
+      setChartData([]);
+    }
+  }
 
   async function loadKeywords() {
     try {
@@ -210,19 +253,32 @@ export default function KeywordsPage() {
         </div>
       )}
 
-      {/* Rank History Chart — demo data, will be replaced by real API */}
+      {/* Rank History Chart — real API data */}
       {kws.length > 0 && (
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <BarChart3 size={14} className="text-zinc-500" />
-            <span className="text-xs uppercase tracking-[0.1em] text-zinc-500 font-semibold">
-              Position History (last 14 days)
-            </span>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <BarChart3 size={14} className="text-zinc-500" />
+              <span className="text-xs uppercase tracking-[0.1em] text-zinc-500 font-semibold">
+                Position History (last 14 days)
+              </span>
+            </div>
+            <select
+              className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-300 focus:outline-none focus:border-brand-500"
+              value={selectedKwId || kws[0]?.id || ""}
+              onChange={(e) => setSelectedKwId(e.target.value)}
+            >
+              {kws.map((k) => (
+                <option key={k.id} value={k.id}>
+                  {k.keyword} {k.latest_position ? `(#${k.latest_position})` : ""}
+                </option>
+              ))}
+            </select>
           </div>
           <RankChart
-            data={generateDemoRankData(kws.slice(0, 1).map(k => k.keyword))}
-            domains={["your-site.com", "competitor-1.com", "competitor-2.com"]}
-            ownDomain="your-site.com"
+            data={chartData}
+            domains={chartDomains}
+            ownDomain={chartOwnDomain}
           />
         </div>
       )}
@@ -348,21 +404,4 @@ export default function KeywordsPage() {
 }
 
 // Generates demo rank data until real API is connected
-function generateDemoRankData(keywords: string[]) {
-  const domains = ["your-site.com", "competitor-1.com", "competitor-2.com"];
-  const days = 14;
-  const data = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const point: Record<string, any> = {
-      date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-    };
-    domains.forEach((domain, di) => {
-      const base = 5 + di * 8;
-      point[domain] = Math.max(1, base + Math.round(Math.sin(i * 0.5 + di) * 4 + (Math.random() - 0.5) * 3));
-    });
-    data.push(point);
-  }
-  return data;
-}
+

@@ -165,9 +165,15 @@ class DataForSEOService:
         results = []
         for task in data.get("tasks", []):
             if task.get("status_code") != 20000:
+                logger.warning("DataForSEO task failed", status=task.get("status_code"), msg=task.get("status_message"))
                 continue
             for result_set in task.get("result", []):
                 serp_features = []
+                # Log top 5 organic results for debugging
+                organic_items = [i for i in result_set.get("items", []) if i.get("type") == "organic"]
+                logger.info(f"DataForSEO SERP for '{keyword}': {len(organic_items)} organic results, "
+                           f"top5: {[i.get('domain') for i in organic_items[:5]]}, "
+                           f"target: {target_domains}")
                 for item in result_set.get("items", []):
                     item_type = item.get("type", "")
 

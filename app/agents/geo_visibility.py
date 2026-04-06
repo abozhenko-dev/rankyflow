@@ -162,9 +162,11 @@ def _process_project(
             db.flush()
 
             # Detect brand mentions
+            # Use domain without TLD as brand name (e.g. semrush.com → semrush)
+            brand_name = project.domain.split('.')[0]
             mentions = geo_service.detect_mentions(
                 response_text=result["response_text"],
-                brand_name=project.name,
+                brand_name=brand_name,
                 brand_domain=project.domain,
                 competitor_names=competitor_names,
                 cited_urls=result.get("cited_urls"),

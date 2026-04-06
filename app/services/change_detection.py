@@ -17,27 +17,27 @@ class ChangeDetectionService:
 
     async def crawl_page(self, url: str) -> dict:
         """
-        Crawl a page using Playwright, extract SEO-relevant data.
+        Crawl a page using httpx, extract SEO-relevant data.
         Returns structured snapshot data.
         """
-        from playwright.async_api import async_playwright
+        import httpx
 
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            context = await browser.new_context(
-                user_agent="Mozilla/5.0 (compatible; SEOTrackerBot/1.0)"
-            )
-            page = await context.new_page()
-
-            try:
-                await page.goto(url, wait_until="networkidle", timeout=30000)
-                html = await page.content()
-            except Exception as e:
-                logger.error(f"Crawl failed for {url}", error=str(e))
-                await browser.close()
-                return {"error": str(e)}
-            finally:
-                await browser.close()
+        try:
+            async with httpx.AsyncClient(
+                timeout=30,
+                follow_redirects=True,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (compatible; SEOTrackerBot/1.0; +https://rankyflow.com)",
+                    "Accept": "text/html,application/xhtml+xml",
+                    "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
+                },
+            ) as client:
+                response = await client.get(url)
+                response.raise_for_status()
+                html = response.text
+        except Exception as e:
+            logger.error(f"Crawl failed for {url}", error=str(e))
+            return {"error": str(e)}
 
         return self.parse_page(html, url)
 

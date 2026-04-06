@@ -1,31 +1,26 @@
 # RankyFlow Session Log — Updated April 6, 2026
 
 ## ✅ RANK TRACKER — FULLY WORKING
-- DataForSEO API credentials: login=dev@bozh.team, password=bbdf241d9ff921c8
-- IP whitelist issue resolved (Railway dynamic IPs — user disabled IP restriction on DataForSEO)
-- Domain matching fixed: strip www. prefix before comparison
-- keyword.latest_position and position_change columns added and updated by rank_tracker
-- Real positions confirmed: semrush.com #68 for "backlink checker", ahrefs.com #93
-- Celery Worker discovers and executes tasks via include=["app.tasks.agents"]
+- DataForSEO live API, domain matching with www. normalization
+- Real positions: semrush.com #87 keyword research, #68 backlink checker, #84 site audit
+- keyword.latest_position auto-updated, rank_history for all domains+competitors
+- IP whitelist resolved (user disabled restriction on DataForSEO)
+
+## ✅ GEO/AI VISIBILITY — FULLY WORKING
+- 7 prompts processed, cost $0.0686
+- ChatGPT (gpt-4o-mini) + Claude (claude-sonnet-4-20250514) queried via httpx
+- Brand mention detection, position in lists, recommendation detection
+- LLM responses + mentions saved to DB
+- Free plan: ChatGPT + Claude; Pro: +Perplexity +Gemini; Agency: +DeepSeek
 
 ## Services: all online
-- API: rankyflow-production.up.railway.app (port 8080)
+- API: rankyflow-production.up.railway.app
 - Worker: invigorating-contentment (Celery)
 - Frontend: adorable-peace / www.rankyflow.com
 - Redis: internal
 
-## All resolved issues
-- Port 8000→8080, bcrypt 4.0.1, all SAEnum→string values with create_type=False
-- Celery task discovery, CORS, frontend Dockerfile, api.ts syntax
-- Free plan 3 projects, error display in modal
-- DataForSEO credentials (API password vs account password)
-- DataForSEO IP whitelist (Railway dynamic IPs)
-- Domain matching (www. prefix normalization)
-- keyword.latest_position/position_change columns + auto-update in rank_tracker
-
 ## Next steps
-1. GEO Visibility agent (OpenAI + Anthropic keys available)
-2. Change Detection (replace Playwright with httpx+BS4)
-3. Analysis Agent (add anthropic SDK to requirements)
-4. Celery Beat verification (daily schedule)
-5. Frontend polish (keywords page shows real positions!)
+1. Change Detection (replace Playwright with httpx+BS4)
+2. Analysis Agent (add anthropic SDK)
+3. Celery Beat (daily schedule)
+4. Frontend polish

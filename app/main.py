@@ -17,17 +17,6 @@ async def lifespan(app: FastAPI):
     """Startup & shutdown events."""
     logger.info("Starting SEO Competitor Tracker", env=settings.app_env)
 
-    # Auto-migrate: ensure all columns exist
-    try:
-        from sqlalchemy import text
-        from app.core.database import engine
-        async with engine.begin() as conn:
-            await conn.execute(text("ALTER TABLE keywords ADD COLUMN IF NOT EXISTS latest_position INTEGER"))
-            await conn.execute(text("ALTER TABLE keywords ADD COLUMN IF NOT EXISTS position_change INTEGER"))
-        logger.info("DB migration check complete")
-    except Exception as e:
-        logger.warning("DB migration check failed (non-fatal)", error=str(e))
-
     # Init Sentry in production
     if settings.sentry_dsn and settings.is_production:
         import sentry_sdk

@@ -17,6 +17,17 @@ async def lifespan(app: FastAPI):
     """Startup & shutdown events."""
     logger.info("Starting SEO Competitor Tracker", env=settings.app_env)
 
+    # Auto-migrate: ensure all columns exist
+    try:
+        from sqlalchemy import text
+        from app.core.database import engine
+        async with engine.begin() as conn:
+            await conn.execute(text("ALTER TABLE keywords ADD COLUMN IF NOT EXISTS latest_position INTEGER"))
+            await conn.execute(text("ALTER TABLE keywords ADD COLUMN IF NOT EXISTS position_change INTEGER"))
+        logger.info("DB migration check complete")
+    except Exception as e:
+        logger.warning("DB migration check failed (non-fatal)", error=str(e))
+
     # Init Sentry in production
     if settings.sentry_dsn and settings.is_production:
         import sentry_sdk
@@ -67,7 +78,23 @@ async def debug_migrate():
     """Temporary: add missing columns to keywords table."""
     from sqlalchemy import text
     from app.core.database import engine
+    results = []
     async with engine.begin() as conn:
-        await conn.execute(text("ALTER TABLE keywords ADD COLUMN IF NOT EXISTS latest_position INTEGER"))
-        await conn.execute(text("ALTER TABLE keywords ADD COLUMN IF NOT EXISTS position_change INTEGER"))
-    return {"status": "migrated"}
+        try:
+            await conn.execute(text("ALTER TABLE keywords ADD COLUMN IF NOT EXISTS latest_position INTEGER"))
+            results.append("latest_position: ok")
+        except Exception as e:
+            results.append(f"latest_position: {e}")
+        try:
+            await conn.execute(text("ALTER TABLE keywords ADD COLUMN IF NOT EXISTS position_change INTEGER"))
+            results.append("position_change: ok")
+        except Exception as e:
+            results.append(f"position_change: {e}")
+        # Check columns
+        try:
+            r = await conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='keywords'"))
+            cols = [row[0] for row in r.fetchall()]
+            results.append(f"columns: {cols}")
+        except Exception as e:
+            results.append(f"cols_check: {e}")
+    return {"results": results}

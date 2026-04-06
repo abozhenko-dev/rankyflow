@@ -184,6 +184,11 @@ def _process_project(db, project: Project) -> tuple[int, int]:
 
                 processed += 1
 
+                # Update keyword.latest_position for the project's own domain
+                if result["domain"] == project.domain and device == "desktop":
+                    kw_model.latest_position = position
+                    kw_model.position_change = position_change
+
             # Also record "not found" for domains not in results
             found_pairs = {(r["keyword"].lower(), r["domain"]) for r in results}
             for kw in active_keywords:

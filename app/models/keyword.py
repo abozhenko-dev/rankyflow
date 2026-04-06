@@ -27,6 +27,8 @@ class Keyword(Base):
     tags: Mapped[str | None] = mapped_column(String(500), nullable=True)  # comma-separated
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    latest_position: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    position_change: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )

@@ -60,3 +60,14 @@ async def debug_ip():
     async with httpx.AsyncClient(timeout=10) as client:
         r = await client.get("https://api.ipify.org?format=json")
         return r.json()
+
+
+@app.post("/debug/migrate")
+async def debug_migrate():
+    """Temporary: add missing columns to keywords table."""
+    from sqlalchemy import text
+    from app.core.database import engine
+    async with engine.begin() as conn:
+        await conn.execute(text("ALTER TABLE keywords ADD COLUMN IF NOT EXISTS latest_position INTEGER"))
+        await conn.execute(text("ALTER TABLE keywords ADD COLUMN IF NOT EXISTS position_change INTEGER"))
+    return {"status": "migrated"}

@@ -29,22 +29,16 @@ celery_app.conf.update(
 
 # ── Beat Schedule: Agent Cron Jobs ─────────────────
 celery_app.conf.beat_schedule = {
-    # Phase 2: SERP rank tracking — daily 06:00 UTC
+    # SERP rank tracking — daily 06:00 UTC
     "rank-tracker-daily": {
         "task": "app.tasks.agents.run_rank_tracker",
         "schedule": crontab(hour=6, minute=0),
     },
 
-    # Phase 2: Website change detection — daily 07:00 UTC
+    # Website change detection — daily 07:00 UTC
     "change-detection-daily": {
         "task": "app.tasks.agents.run_change_detection",
         "schedule": crontab(hour=7, minute=0),
-    },
-
-    # Phase 2: Google data sync — daily 07:30 UTC
-    "google-data-daily": {
-        "task": "app.tasks.agents.run_google_data_sync",
-        "schedule": crontab(hour=7, minute=30),
     },
 
     # GEO: AI visibility tracking — weekly Monday 05:00 UTC
@@ -53,16 +47,10 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(hour=5, minute=0, day_of_week=1),
     },
 
-    # Phase 3: AI analysis — daily 08:00 UTC (after all data is collected)
+    # AI analysis — daily 08:00 UTC (after all data is collected)
     "analysis-daily": {
         "task": "app.tasks.agents.run_analysis",
         "schedule": crontab(hour=8, minute=0),
-    },
-
-    # Phase 3: Alert & report — daily 08:30 UTC
-    "alert-report-daily": {
-        "task": "app.tasks.agents.run_alert_report",
-        "schedule": crontab(hour=8, minute=30),
     },
 }
 

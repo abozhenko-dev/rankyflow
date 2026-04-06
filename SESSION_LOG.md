@@ -1,26 +1,35 @@
-# RankyFlow Session Log — Updated April 6, 2026
+# RankyFlow Session Log — April 6, 2026
 
-## ✅ RANK TRACKER — FULLY WORKING
-- DataForSEO live API, domain matching with www. normalization
-- Real positions: semrush.com #87 keyword research, #68 backlink checker, #84 site audit
-- keyword.latest_position auto-updated, rank_history for all domains+competitors
-- IP whitelist resolved (user disabled restriction on DataForSEO)
+## ✅ ALL 4 AGENTS WORKING
 
-## ✅ GEO/AI VISIBILITY — FULLY WORKING
-- 7 prompts processed, cost $0.0686
-- ChatGPT (gpt-4o-mini) + Claude (claude-sonnet-4-20250514) queried via httpx
-- Brand mention detection, position in lists, recommendation detection
-- LLM responses + mentions saved to DB
-- Free plan: ChatGPT + Claude; Pro: +Perplexity +Gemini; Agency: +DeepSeek
+### Rank Tracker
+- DataForSEO live API, country DE, domain matching with www. normalization
+- keyword.latest_position auto-updated
+- CannGo: 8 cannabis keywords, 2 competitors (dransay.com, can-doc.de)
 
-## Services: all online
-- API: rankyflow-production.up.railway.app
-- Worker: invigorating-contentment (Celery)
-- Frontend: adorable-peace / www.rankyflow.com
-- Redis: internal
+### GEO/AI Visibility
+- ChatGPT + Claude queried with 4 German-language prompts
+- CannGo mentioned in 25% of Claude responses, 33% SoV
+- Cost: $0.033 per run
 
-## Next steps
-1. Change Detection (replace Playwright with httpx+BS4)
-2. Analysis Agent (add anthropic SDK)
-3. Celery Beat (daily schedule)
-4. Frontend polish
+### Change Detection
+- Playwright replaced with httpx + BeautifulSoup
+- 4 competitor pages tracked and crawled successfully
+- First scan = baseline, subsequent runs detect changes
+
+### Analysis Agent
+- Claude AI generates correlational analysis
+- Combines rank changes + site changes + GEO data
+- Returns structured JSON with insights + recommendations
+
+## CannGo Project State
+- Domain: canngo.express (DE market)
+- Keywords: cannabis rezept online, cannabis auf rezept, medizinisches cannabis deutschland, cannabis telemedizin, cannabis arzt online, cannabis rezept kosten, thc rezept online, cannabis apotheke lieferung
+- Competitors: dransay.com (ansay), can-doc.de (can-doc)
+- Tracked pages: 4 (homepage + cannabis page per competitor)
+
+## Remaining tasks
+1. Celery Beat — verify daily schedule (rank tracker 06:00, change detection 07:00, analysis 08:00)
+2. Frontend polish — verify all pages render with real data
+3. Delete RankyFlow Demo project (empty)
+4. DataForSEO IP — user disabled IP restriction (resolved)

@@ -185,7 +185,9 @@ def _process_project(db, project: Project) -> tuple[int, int]:
                 processed += 1
 
                 # Update keyword.latest_position for the project's own domain
-                if result["domain"] == project.domain and device == "desktop":
+                result_domain_clean = result["domain"].lower().removeprefix("www.")
+                project_domain_clean = project.domain.lower().removeprefix("www.")
+                if result_domain_clean == project_domain_clean and device == "desktop":
                     kw_model.latest_position = position
                     kw_model.position_change = position_change
 

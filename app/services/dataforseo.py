@@ -114,10 +114,16 @@ class DataForSEOService:
                                 continue
 
                             domain = item.get("domain", "")
-                            if domain in target_domains:
+                            domain_clean = domain.lower().removeprefix("www.")
+                            matched_domain = None
+                            for td in target_domains:
+                                if td.lower().removeprefix("www.") == domain_clean:
+                                    matched_domain = td
+                                    break
+                            if matched_domain:
                                 results.append({
                                     "keyword": keyword,
-                                    "domain": domain,
+                                    "domain": matched_domain,
                                     "position": item.get("rank_group"),
                                     "url": item.get("url"),
                                     "title": item.get("title"),
@@ -174,10 +180,17 @@ class DataForSEOService:
                         continue
 
                     domain = item.get("domain", "")
-                    if domain in target_domains:
+                    # Normalize domain: strip www. for comparison
+                    domain_clean = domain.lower().removeprefix("www.")
+                    matched_domain = None
+                    for td in target_domains:
+                        if td.lower().removeprefix("www.") == domain_clean:
+                            matched_domain = td
+                            break
+                    if matched_domain:
                         results.append({
                             "keyword": keyword,
-                            "domain": domain,
+                            "domain": matched_domain,
                             "position": item.get("rank_group"),
                             "url": item.get("url"),
                             "title": item.get("title"),

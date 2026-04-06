@@ -42,8 +42,13 @@ export default function KeywordsPage() {
   // Load chart data when a keyword is selected or when keywords load
   useEffect(() => {
     if (kws.length > 0) {
-      const kwId = selectedKwId || kws[0]?.id;
-      if (kwId) loadChartData(kwId);
+      const kwId = selectedKwId || 
+        kws.find(k => k.latest_position !== null)?.id || 
+        kws[0]?.id;
+      if (kwId) {
+        if (!selectedKwId) setSelectedKwId(kwId);
+        loadChartData(kwId);
+      }
     }
   }, [selectedKwId, kws]);
 

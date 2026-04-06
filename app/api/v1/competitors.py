@@ -210,3 +210,63 @@ async def _check_keyword_limit(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Plan limit: {limit} keywords. You have {existing}, trying to add {adding}. Upgrade to continue.",
         )
+
+
+# ── Tracked Pages ─────────────────────────────────────
+
+from app.models.page import TrackedPage
+from app.schemas.project import TrackedPageCreate, TrackedPageResponse
+
+
+@router.get(
+    "/competitors/{competitor_id}/pages",
+    response_model=List[TrackedPageResponse],
+)
+async def list_tracked_pages(
+    competitor_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(TrackedPage).where(TrackedPage.competitor_id == competitor_id)
+    )
+    return [TrackedPageResponse.model_validate(p) for p in result.scalars().all()]
+
+
+@router.post(
+    "/competitors/{competitor_id}/pages",
+    response_model=TrackedPageResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_tracked_page(
+    competitor_id: str,
+    body: TrackedPageCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Verify competitor exists
+    comp = await db.get(Competitor, competitor_id)
+    if not comp:
+        raise HTTPException(status_code=404, detail="Competitor not found")
+
+    page = TrackedPage(
+        competitor_id=competitor_id,
+        url=body.url.strip(),
+        label=body.label,
+    )
+    db.add(page)
+    await db.flush()
+    return TrackedPageResponse.model_validate(page)
+
+
+@router.delete("/pages/{page_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_tracked_page(
+    page_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(select(TrackedPage).where(TrackedPage.id == page_id))
+    page = result.scalar_one_or_none()
+    if not page:
+        raise HTTPException(status_code=404, detail="Tracked page not found")
+    await db.delete(page)

@@ -10,7 +10,7 @@ import httpx
 import structlog
 
 from app.core.config import settings
-from app.models.geo import LLMPlatform, Sentiment
+# LLM platforms as strings: chatgpt, claude, perplexity, gemini, deepseek
 
 logger = structlog.get_logger()
 
@@ -184,14 +184,14 @@ class GEOVisibilityService:
     async def query_all_platforms(
         self,
         prompt: str,
-        platforms: list[LLMPlatform] | None = None,
+        platforms: list[str] | None = None,
     ) -> list[dict]:
         """
         Query multiple LLM platforms with the same prompt.
         Returns list of results, one per platform.
         """
         if platforms is None:
-            platforms = list(LLMPlatform)
+            platforms = ["chatgpt", "claude", "perplexity", "gemini", "deepseek"]
 
         results = []
         for platform in platforms:
@@ -202,9 +202,9 @@ class GEOVisibilityService:
                 method = getattr(self, method_name)
                 result = await method(prompt)
                 results.append(result)
-                logger.info(f"GEO: queried {platform.value}", tokens=result.get("tokens_used"))
+                logger.info(f"GEO: queried {platform}", tokens=result.get("tokens_used"))
             except Exception as e:
-                logger.error(f"GEO: failed to query {platform.value}", error=str(e))
+                logger.error(f"GEO: failed to query {platform}", error=str(e))
                 results.append({
                     "platform": platform,
                     "response_text": "",

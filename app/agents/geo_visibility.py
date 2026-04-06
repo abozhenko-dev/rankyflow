@@ -13,14 +13,13 @@ from sqlalchemy.orm import joinedload
 import structlog
 
 from app.core.database import get_sync_db
-from app.models.user import User, PlanTier
+from app.models.user import User
 from app.models.project import Project
 from app.models.competitor import Competitor
 from app.models.geo import (
     LLMPrompt, LLMResponse, LLMMention, GEOVisibilitySnapshot,
-    LLMPlatform, Sentiment,
 )
-from app.models.agent_run import AgentRun, AgentType, RunStatus
+from app.models.agent_run import AgentRun
 from app.services.geo_visibility import geo_service
 
 logger = structlog.get_logger()
@@ -99,7 +98,7 @@ def run(project_id: str | None = None):
 
 
 def _process_project(
-    db, project: Project, platforms: list[LLMPlatform]
+    db, project: Project, platforms: list[str]
 ) -> tuple[int, int, float]:
     """Process a single project's GEO visibility check."""
     today = date.today()
@@ -214,7 +213,7 @@ def _process_project(
     return prompt_count, response_count, total_cost
 
 
-def _estimate_cost(platform: LLMPlatform, tokens: int) -> float:
+def _estimate_cost(platform: str, tokens: int) -> float:
     """Rough cost estimate per platform per request."""
     cost_per_1k_tokens = {
         "chatgpt": 0.00015 + 0.0006,   # gpt-4o-mini input+output

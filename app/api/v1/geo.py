@@ -75,12 +75,8 @@ class MentionDetailResponse(BaseModel):
 # ── Helpers ───────────────────────────────────────────
 
 def _require_geo_access(user: User):
-    """GEO features require Pro or Agency plan."""
-    if user.plan in ("free", "starter"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="GEO/AI Visibility requires Pro or Agency plan. Upgrade to access.",
-        )
+    """GEO features available on all plans for now."""
+    pass  # All plans have access
 
 
 async def _get_user_project(db: AsyncSession, project_id: str, user_id: str) -> Project:
@@ -215,6 +211,8 @@ async def get_visibility_snapshots(
 # ── Prompt Limits ─────────────────────────────────────
 
 GEO_PROMPT_LIMITS = {
+    "free": 10,
+    "starter": 25,
     "pro": 50,
     "agency": 200,
 }

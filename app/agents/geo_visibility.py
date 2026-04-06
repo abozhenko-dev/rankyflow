@@ -27,8 +27,10 @@ logger = structlog.get_logger()
 
 # Platform access by plan tier
 PLAN_PLATFORMS = {
-    "pro": ["chatgpt", "perplexity", "gemini"],
-    "agency": list(LLMPlatform),  # all 5
+    "free": ["chatgpt", "claude"],
+    "starter": ["chatgpt", "claude"],
+    "pro": ["chatgpt", "perplexity", "claude", "gemini"],
+    "agency": ["chatgpt", "perplexity", "claude", "gemini", "deepseek"],
 }
 
 
@@ -37,12 +39,10 @@ def run(project_id: str | None = None):
     started = time.time()
 
     with get_sync_db() as db:
-        # Load projects with Pro/Agency plans that have prompts
+        # Load active projects with prompts
         query = (
             select(Project)
             .where(Project.is_active == True)
-            .join(User, Project.owner_id == User.id)
-            .where(User.plan.in_(["pro", "agency"]))
             .options(joinedload(Project.competitors))
         )
         if project_id:

@@ -1,61 +1,30 @@
-# Session Log — SEO Competitor Intelligence Platform
+# RankyFlow Session Log — April 4-5, 2026
 
-Хронологический лог рабочих сессий.
+## BLOCKING: DataForSEO 401
+- Credentials fixed: API password `bbdf241d9ff921c8` (was using account password)
+- Updated on both `rankyflow` (API) and `invigorating-contentment` (Worker) Railway services
+- Worker deployed with new creds ("Apply 1 change" → Deploy)
+- API server IP `34.147.69.117` added to DataForSEO whitelist
+- Worker IP may differ — need to check Worker logs after deploy
 
----
+## BUG: rank_tracker doesn't update keyword.latest_position
+- Agent writes to rank_history but NOT to keyword.latest_position/position_change
+- Need to add update after saving rank_history for project's own domain
 
-## Session 1 — 2026-03-29
+## All fixed issues
+- Port 8000→8080, bcrypt 4.0.1, all SAEnum→string values with create_type=False
+- Celery task discovery: include=["app.tasks.agents"]
+- CORS, frontend Dockerfile, api.ts syntax, Free plan 3 projects, error display in modal
 
-### Что сделали:
-1. **Планирование** — создали интерактивный HTML-план проекта (6 фаз → позже 7)
-   - Исследовали рынок: SERP API провайдеры, change detection tools, конкуренты
-   - Выбрали стек: FastAPI + Next.js + Supabase + Celery + Redis
-   - Определили архитектуру 4 агентов → позже расширили до 6
+## Services: all online
+- API: rankyflow-production.up.railway.app (port 8080)
+- Worker: invigorating-contentment (Celery)
+- Frontend: adorable-peace / www.rankyflow.com
+- Redis: internal
 
-2. **Google интеграция** — по запросу добавили GSC + GA4 Data API
-   - Новый Google Data Agent (07:30 UTC)
-   - Обновили Analysis Agent для кросс-корреляции
-   - Таблица Google APIs в плане
-
-3. **GEO модуль (Peec.ai style)** — по запросу добавили AI Visibility Tracking
-   - Исследовали: Peec.ai ($21M raised), Otterly.ai, OpenLens, Sellm.io, Frase
-   - Новая фаза G в дорожной карте (5 задач)
-   - GEO Visibility Agent (weekly, 5 LLM-платформ)
-   - 4 новые таблицы БД: llm_prompts, llm_responses, llm_mentions, geo_visibility_snapshots
-   - GEO = Pro/Agency only ($99/$249)
-
-4. **Фаза 1: Backend** — полная реализация
-   - FastAPI app + CORS + health check
-   - JWT auth (register, login, refresh, me)
-   - 11 моделей БД (core + GEO)
-   - CRUD API для projects, competitors, keywords, GEO prompts
-   - Plan limits enforcement
-   - Alembic async migrations
-   - Docker Compose (5 сервисов)
-   - Railway + Vercel deploy configs
-
-5. **Фаза 2: Services** — core business logic
-   - DataForSEO service (batch Standard Queue + live mode)
-   - Change Detection service (Playwright + BeautifulSoup + difflib)
-   - GEO Visibility service (5 LLM APIs + mention detection + scoring)
-   - GEO API endpoints
-
-6. **Context files** — создали CONTEXT.md + SESSION_LOG.md
-
-### Решения приняты в сессии:
-- Deploy: Railway (бэк) + Vercel (фронт)
-- SERP API: DataForSEO (batch mode)
-- Начинаем с Фазы 1 (backend фундамент)
-- GEO как premium фича (Pro/Agency)
-- 5 LLM платформ: ChatGPT, Claude, Perplexity, Gemini, DeepSeek
-
-### Следующая сессия:
-- Наполнить agent tasks реальной логикой
-- Google Search Console + GA4 сервис
-- Analysis Agent (Claude prompts)
-- ИЛИ: начать фронтенд (Next.js)
-
-### Статистика:
-- 32 Python файла
-- ~2900 строк кода
-- Архив: seo-tracker-phase1-2.tar.gz (27KB)
+## Next steps
+1. Verify DataForSEO (check Worker logs for 200 vs 401)
+2. Fix rank_tracker to update keyword.latest_position
+3. GEO Visibility agent
+4. Change Detection (replace Playwright with httpx+BS4)
+5. Analysis Agent (add anthropic SDK)

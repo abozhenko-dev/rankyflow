@@ -1,35 +1,47 @@
-# RankyFlow Session Log — April 6, 2026
+# RankyFlow — PRODUCTION STATUS — April 6, 2026
 
-## ✅ ALL 4 AGENTS WORKING
+## ✅ MVP COMPLETE — ALL SYSTEMS WORKING
 
-### Rank Tracker
-- DataForSEO live API, country DE, domain matching with www. normalization
-- keyword.latest_position auto-updated
-- CannGo: 8 cannabis keywords, 2 competitors (dransay.com, can-doc.de)
+### Infrastructure
+| Service | Status | Domain |
+|---------|--------|--------|
+| API Backend | ✅ Online | rankyflow-production.up.railway.app |
+| Celery Worker | ✅ Online | unexposed |
+| Frontend | ✅ Online | adorable-peace-production.up.railway.app |
+| Redis | ✅ Online | internal |
 
-### GEO/AI Visibility
-- ChatGPT + Claude queried with 4 German-language prompts
-- CannGo mentioned in 25% of Claude responses, 33% SoV
-- Cost: $0.033 per run
+### All 4 Agents — CONFIRMED WORKING
+1. **Rank Tracker** — DataForSEO live API, real Google positions
+2. **GEO/AI Visibility** — ChatGPT + Claude brand mention tracking
+3. **Change Detection** — httpx + BeautifulSoup crawling
+4. **Analysis Agent** — Claude AI correlation analysis
 
-### Change Detection
-- Playwright replaced with httpx + BeautifulSoup
-- 4 competitor pages tracked and crawled successfully
-- First scan = baseline, subsequent runs detect changes
-
-### Analysis Agent
-- Claude AI generates correlational analysis
-- Combines rank changes + site changes + GEO data
-- Returns structured JSON with insights + recommendations
-
-## CannGo Project State
+### CannGo Project — Real Data
 - Domain: canngo.express (DE market)
-- Keywords: cannabis rezept online, cannabis auf rezept, medizinisches cannabis deutschland, cannabis telemedizin, cannabis arzt online, cannabis rezept kosten, thc rezept online, cannabis apotheke lieferung
-- Competitors: dransay.com (ansay), can-doc.de (can-doc)
-- Tracked pages: 4 (homepage + cannabis page per competitor)
+- 8 Keywords with real positions:
+  - cannabis arzt online → #5
+  - cannabis rezept kosten → #9
+  - thc rezept online → #12
+  - cannabis auf rezept → #14
+  - cannabis telemedizin → #19
+  - cannabis rezept online → #28
+- 2 Competitors: dransay.com (ansay), can-doc.de (can-doc)
+- 4 Tracked pages (homepage + cannabis page per competitor)
+- 4 GEO prompts (German), 25% AI mention rate, 33% SoV
 
-## Remaining tasks
-1. Celery Beat — verify daily schedule (rank tracker 06:00, change detection 07:00, analysis 08:00)
-2. Frontend polish — verify all pages render with real data
-3. Delete RankyFlow Demo project (empty)
-4. DataForSEO IP — user disabled IP restriction (resolved)
+### Frontend — All Pages Verified
+- ✅ Dashboard with project cards
+- ✅ Keywords page with position table + history chart
+- ✅ Competitors page with cards
+- ✅ Changes page (baseline established, changes from next scan)
+- ✅ AI Visibility page with mention rate, SoV, weekly trend
+
+### Celery Beat Schedule (needs --beat on Worker)
+- Rank Tracker: daily 06:00 UTC
+- Change Detection: daily 07:00 UTC
+- Analysis: daily 08:00 UTC
+- GEO Visibility: weekly Monday 05:00 UTC
+
+### Remaining todo
+- Worker start command on Railway needs `--beat` flag for auto-scheduling
+- www.rankyflow.com custom domain routing

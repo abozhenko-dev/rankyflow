@@ -87,3 +87,32 @@ async def debug_migrate():
         except Exception as e:
             results.append(f"cols_check: {e}")
     return {"results": results}
+
+
+@app.get("/debug/test-dataforseo")
+async def debug_test_dataforseo():
+    """Test DataForSEO API directly."""
+    import httpx, base64
+    from app.core.config import settings
+    creds = f"{settings.dataforseo_login}:{settings.dataforseo_password}"
+    auth = base64.b64encode(creds.encode()).decode()
+    payload = [{"keyword": "seo tools", "location_code": 2840, "language_code": "en", "device": "desktop", "depth": 10}]
+    async with httpx.AsyncClient(timeout=30) as client:
+        r = await client.post(
+            "https://api.dataforseo.com/v3/serp/google/organic/live/regular",
+            headers={"Authorization": f"Basic {auth}", "Content-Type": "application/json"},
+            json=payload,
+        )
+        data = r.json()
+        status = data.get("status_code")
+        tasks = data.get("tasks", [])
+        task_status = tasks[0].get("status_code") if tasks else None
+        task_msg = tasks[0].get("status_message") if tasks else None
+        # Get top 5 organic
+        top5 = []
+        if tasks and tasks[0].get("status_code") == 20000:
+            for rs in tasks[0].get("result", []):
+                for item in rs.get("items", []):
+                    if item.get("type") == "organic" and len(top5) < 5:
+                        top5.append({"pos": item.get("rank_group"), "domain": item.get("domain")})
+        return {"api_status": status, "task_status": task_status, "task_msg": task_msg, "top5": top5}

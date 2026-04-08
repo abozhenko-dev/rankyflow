@@ -136,7 +136,11 @@ async def list_agent_runs(
 
 @router.get("/debug/worker-ip")
 async def debug_worker_ip(user: User = Depends(get_current_user)):
-    """Trigger worker IP check and return task ID."""
+    """Trigger worker DataForSEO test and return result synchronously."""
     from app.tasks.agents import check_worker_ip
     task = check_worker_ip.delay()
-    return {"task_id": str(task.id), "message": "Check worker logs for IP"}
+    try:
+        result = task.get(timeout=60)
+        return {"task_id": str(task.id), "result": result}
+    except Exception as e:
+        return {"task_id": str(task.id), "error": str(e)}

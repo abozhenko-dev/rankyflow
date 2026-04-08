@@ -128,15 +128,49 @@ def run_all_for_project(project_id: str):
 
 @celery_app.task(name="app.tasks.agents.check_worker_ip")
 def check_worker_ip():
-    """Check outbound IP of the Celery worker."""
+    """Check outbound IP of the Celery worker and test DataForSEO from it."""
     import httpx
     import asyncio
+    import base64
+    from app.core.config import settings
 
-    async def _get_ip():
-        async with httpx.AsyncClient(timeout=10) as client:
+    async def _test():
+        result = {}
+        async with httpx.AsyncClient(timeout=30) as client:
             r = await client.get("https://api.ipify.org?format=json")
-            return r.json()
+            result["ip"] = r.json().get("ip")
 
-    result = asyncio.run(_get_ip())
-    logger.info("Worker outbound IP", ip=result)
+            creds = f"{settings.dataforseo_login}:{settings.dataforseo_password}"
+            auth = base64.b64encode(creds.encode()).decode()
+            try:
+                dfs_r = await client.post(
+                    "https://api.dataforseo.com/v3/serp/google/organic/live/regular",
+                    headers={"Authorization": f"Basic {auth}", "Content-Type": "application/json"},
+                    json=[{
+                        "keyword": "cannabis arzt online",
+                        "location_code": 2276,
+                        "language_code": "de",
+                        "device": "desktop",
+                        "depth": 5,
+                    }],
+                )
+                data = dfs_r.json()
+                result["api_status"] = data.get("status_code")
+                tasks = data.get("tasks", [])
+                if tasks:
+                    t = tasks[0]
+                    result["task_status"] = t.get("status_code")
+                    result["task_msg"] = t.get("status_message")
+                    items = []
+                    for rs in (t.get("result") or []):
+                        for it in rs.get("items", []):
+                            if it.get("type") == "organic":
+                                items.append({"pos": it.get("rank_group"), "domain": it.get("domain")})
+                    result["top5"] = items[:5]
+            except Exception as e:
+                result["error"] = str(e)
+        return result
+
+    result = asyncio.run(_test())
+    logger.info("Worker DataForSEO test", **result)
     return result

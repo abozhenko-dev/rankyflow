@@ -124,6 +124,17 @@ def _process_project(db, project: Project) -> tuple[int, int]:
                 )
             )
 
+            # If no results at all, DataForSEO likely failed — skip writing nulls
+            # to preserve previous history instead of polluting it with nulls
+            if not results:
+                logger.warning(
+                    "Rank tracker: DataForSEO returned 0 results, skipping save",
+                    project=project.domain, device=device,
+                    keywords=len(keyword_texts),
+                )
+                failed += 1
+                continue
+
             # Build lookup: keyword_text → Keyword model
             kw_lookup = {kw.keyword.lower(): kw for kw in active_keywords}
 

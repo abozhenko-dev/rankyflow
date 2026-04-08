@@ -89,6 +89,16 @@ async def debug_migrate():
     return {"results": results}
 
 
+@app.post("/debug/cleanup-null-ranks")
+async def debug_cleanup_null_ranks():
+    """Temporary: delete rank_history rows where position IS NULL (from failed DataForSEO runs)."""
+    from sqlalchemy import text
+    from app.core.database import engine
+    async with engine.begin() as conn:
+        r = await conn.execute(text("DELETE FROM rank_history WHERE position IS NULL"))
+        return {"deleted_rows": r.rowcount}
+
+
 @app.get("/debug/test-dataforseo")
 async def debug_test_dataforseo():
     """Test DataForSEO API directly."""
